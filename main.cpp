@@ -1,8 +1,9 @@
 #include "PacketSniffer.h"
 
 int main() {
+    auto* sniffer = new PacketSniffer();
 
-    PacketSniffer();
+    sniffer->startSniffing();
 
     return 0;
 }
