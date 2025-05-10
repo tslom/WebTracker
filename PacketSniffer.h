@@ -14,5 +14,4 @@ private:
     bool setupLiveDevice();
 };
 
-
 #endif //PACKETSNIFFER_H

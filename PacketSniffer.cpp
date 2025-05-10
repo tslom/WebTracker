@@ -11,7 +11,7 @@ PacketSniffer::PacketSniffer() {
 }
 
 bool isValidIPv4Address(const pcpp::IPv4Address address) {
-    return  address != pcpp::IPv4Address::Zero && pcpp::IPv4Address::isValidIPv4Address(address.toString());
+    return address != pcpp::IPv4Address::Zero && pcpp::IPv4Address::isValidIPv4Address(address.toString());
 }
 
 void printDevInfo(const pcpp::PcapLiveDevice* dev) {
