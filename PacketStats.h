@@ -27,12 +27,48 @@ struct PacketStats
     // Constructor is optional here since the members are already initialized
     PacketStats() = default;
 
+    std::string getProtocolTypeAsString(pcpp::ProtocolType protocolType) {
+        switch (protocolType)
+        {
+            case pcpp::Ethernet:
+                return "Ethernet";
+            case pcpp::IPv4:
+                return "IPv4";
+            case pcpp::TCP:
+                return "TCP";
+            case pcpp::IPv6:
+                return "IPv6";
+            case pcpp::UDP:
+                return "UDP";
+            case pcpp::DNS:
+                return "DNS";
+            case pcpp::SSL:
+                return "SSL";
+            case pcpp::HTTPRequest:
+            case pcpp::HTTPResponse:
+                return "HTTP";
+            default:
+                return "Unknown";
+        }
+    }
+
     /**
      * Collect stats from a packet
      */
     void consumePacket(const pcpp::Packet& packet)
     {
-        std::cout << packet << std::endl;
+        // first let's go over the layers one by one and find out its type, its total length, its header length and its payload length
+        std::cout << "START OF PACKET" << std::endl;
+        for (auto* curLayer = packet.getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
+        {
+            std::cout
+                << "Layer type: " << getProtocolTypeAsString(curLayer->getProtocol()) << "; " // get layer type
+                << "Total data: " << curLayer->getDataLen() << " [bytes]; " // get total length of the layer
+                << "Layer data: " << curLayer->getHeaderLen() << " [bytes]; " // get the header length of the layer
+                << "Layer payload: " << curLayer->getLayerPayloadSize() << " [bytes]" // get the payload length of the layer (equals total length minus header length)
+                << std::endl;
+        }
+        std::cout << "END OF PACKET" << std::endl;
         if (packet.isPacketOfType(pcpp::Ethernet))
             ethPacketCount++;
         if (packet.isPacketOfType(pcpp::IPv4))
