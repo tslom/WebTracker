@@ -17,12 +17,14 @@ if(TARGET Pcap++)
 endif()
 
 add_executable("${PROJECT_NAME}" main.cpp
-        PacketSniffer.cpp
-        PacketSniffer.h
-        PacketStats.h
-        Logger.cpp
-        Logger.h
-        PacketStats.cpp)
+        packets/PacketSniffer.cpp
+        packets/PacketSniffer.h
+        packets/PacketStats.cpp
+        packets/PacketStats.h
+        logging/Logger.cpp
+        logging/Logger.h
+        logging/LogReader.cpp
+        logging/LogReader.h)
 
 set_target_properties("${PROJECT_NAME}" PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 

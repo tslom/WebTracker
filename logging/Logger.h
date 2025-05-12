@@ -2,7 +2,7 @@
 #define LOGGER_H
 #include <fstream>
 
-#include "PacketStats.h"
+#include "../packets/PacketStats.h"
 
 
 class Logger {
