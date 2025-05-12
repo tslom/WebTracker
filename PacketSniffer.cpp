@@ -3,7 +3,7 @@
 #include <iostream>
 #include "SystemUtils.h"
 
-PacketSniffer::PacketSniffer() {
+PacketSniffer::PacketSniffer(const std::string& fileName): logger(fileName){
     if (!setupLiveDevice()) {
         liveDevice = nullptr;
         std::cerr << "Unable to locate device to sniff" << std::endl;
@@ -59,23 +59,29 @@ void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* c
     stats->consumePacket(parsedPacket);
 }
 
-bool PacketSniffer::startSniffing() {
+void PacketSniffer::startSniffing() {
     if (!liveDevice->open())
     {
         std::cerr << "Cannot open device" << std::endl;
-        return false;
+        return;
     }
 
-    std::cout << std::endl << "Starting async capture..." << std::endl;
+    std::cout << std::endl << "Starting packet capture..." << std::endl;
 
-    // start capture in async mode. Give a callback function to call to whenever a packet is captured and the stats object as the cookie
     liveDevice->startCapture(onPacketArrives, &stats);
 
-    pcpp::multiPlatformSleep(10);
+    for (int i = 0; i < 3; i++) {
+
+        pcpp::multiPlatformSleep(10);
+
+        stats.printToConsole();
+
+        logger.logToFile(stats);
+        stats.clear();
+
+        logger.flush();
+    }
 
     liveDevice->stopCapture();
-
-    std::cout << "Results: " << std::endl;
-    stats.printToConsole();
 }
 

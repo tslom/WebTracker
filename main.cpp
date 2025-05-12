@@ -1,7 +1,12 @@
+#include <memory>
+
 #include "PacketSniffer.h"
 
 int main() {
-    auto* sniffer = new PacketSniffer();
+
+    const std::string fileName = "usage-data.csv";
+
+    auto sniffer = std::make_unique<PacketSniffer>(fileName);
 
     sniffer->startSniffing();
 
