@@ -3,7 +3,18 @@ project(WebBlocker)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(PcapPlusPlus REQUIRED)
+include(FetchContent)
+FetchContent_Declare(
+        PcapPlusPlus
+        GIT_REPOSITORY https://github.com/seladb/PcapPlusPlus.git
+        GIT_TAG v24.09
+)
+FetchContent_MakeAvailable(PcapPlusPlus)
+
+# jank fix for random error when building pcapplusplus
+if(TARGET Pcap++)
+     target_compile_options(Pcap++ PRIVATE -Wno-vla-extension -Wno-error=vla-extension)
+endif()
 
 add_executable("${PROJECT_NAME}" main.cpp
         PacketSniffer.cpp
@@ -12,4 +23,4 @@ add_executable("${PROJECT_NAME}" main.cpp
 
 set_target_properties("${PROJECT_NAME}" PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-target_link_libraries("${PROJECT_NAME}" PUBLIC PcapPlusPlus::Pcap++)
+target_link_libraries("${PROJECT_NAME}" PUBLIC Pcap++)
