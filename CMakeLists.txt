@@ -11,6 +11,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(PcapPlusPlus)
 
+FetchContent_Declare(
+        matplotplusplus
+        GIT_REPOSITORY https://github.com/alandefreitas/matplotplusplus.git
+        GIT_TAG origin/master
+)
+FetchContent_MakeAvailable(matplotplusplus)
+
 # jank fix for random error when building pcapplusplus
 if(TARGET Pcap++)
      target_compile_options(Pcap++ PRIVATE -Wno-vla-extension -Wno-error=vla-extension)
@@ -28,4 +35,4 @@ add_executable("${PROJECT_NAME}" main.cpp
 
 set_target_properties("${PROJECT_NAME}" PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-target_link_libraries("${PROJECT_NAME}" PUBLIC Pcap++)
+target_link_libraries("${PROJECT_NAME}" PUBLIC Pcap++ matplot)

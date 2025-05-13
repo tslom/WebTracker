@@ -36,9 +36,6 @@ struct PacketStats {
      */
     void clear();
 
-    // Constructor is optional here since the members are already initialized
-    PacketStats();
-
     /**
      * Collect stats from a packet
      */
