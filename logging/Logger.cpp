@@ -1,5 +1,7 @@
 #include "Logger.h"
 
+#include <iostream>
+
 Logger::Logger(const std::string& fileName) {
     const bool fileExists = std::filesystem::exists(fileName);
 
@@ -17,6 +19,7 @@ void Logger::flush() {
 
 
 void Logger::logToFile(const PacketStats& stats) {
+    // const auto start_time = std::chrono::high_resolution_clock::now();
 
     logFile << stats.packetCount << ","
         << stats.totalBytes << ","
@@ -43,5 +46,13 @@ void Logger::logToFile(const PacketStats& stats) {
     }
     // ending the row
     logFile << "\n";
+
+    // tracking how long it takes to write data to file (very little time not very relevant)
+    // const auto end_time = std::chrono::high_resolution_clock::now();
+    //
+    // const auto timeTaken = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+    //
+    // std::cout << "Data successfully logged!" << std::endl;
+    // std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::duration<double>>(timeTaken) << std::endl;
 }
 

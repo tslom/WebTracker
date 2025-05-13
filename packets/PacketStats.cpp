@@ -18,20 +18,6 @@ void PacketStats::clear() {
     // not clearing ipv4 to domain
 }
 
-
-
-std::string printHttpMethod(pcpp::HttpRequestLayer::HttpMethod httpMethod) {
-    switch (httpMethod)
-    {
-        case pcpp::HttpRequestLayer::HttpGET:
-            return "GET";
-        case pcpp::HttpRequestLayer::HttpPOST:
-            return "POST";
-        default:
-            return "Other";
-    }
-}
-
 void PacketStats::consumePacket(const pcpp::Packet &packet) {
     const auto start_time = std::chrono::high_resolution_clock::now();
 
