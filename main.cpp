@@ -3,10 +3,17 @@
 #include "./packets/PacketSniffer.h"
 #include "./logging/LogReader.h"
 
-void graph_function(const std::string& category) {
-    std::cout << "Generating graph for category: " << category << "\n";
-}
-
+/**
+ * @brief Main CLI loop for controlling the packet sniffer, data updates, and graph generation.
+ *
+ * Supports commands:
+ * - "start": Begin packet sniffing.
+ * - "stop": End packet sniffing.
+ * - "updatedata": Parse and process the logged data.
+ * - "graphtime <category>": Generate a time-series graph for a given category.
+ * - "graphtime-map <category>": Generate a mapped time-series graph.
+ * - "exit": Exit the application.
+ */
 int main() {
     const std::string fileName = "usage-data.csv";
 
@@ -19,7 +26,7 @@ int main() {
 
     while (running) {
 
-        std::cout << "\nAvailable commands: start, stop, updatedata, graphtime, exit\n> ";
+        std::cout << "\nAvailable commands: start, stop, updatedata, graphtime, graphtime-map exit\n> ";
         std::getline(std::cin, command);
 
 
@@ -31,6 +38,17 @@ int main() {
         }
         else if (command == "updatedata") {
             logReader.parseData();
+        }
+        else if (command.substr(0, 13) == "graphtime-map") {
+            std::string category;
+            if (command.length() > 14) {
+                category = command.substr(14);
+                logReader.graphOverTimeWithMap(category);
+
+            } else {
+                std::cout << "Please choose a category. \n";
+                logReader.printIntCategories();
+            }
         }
         else if (command.substr(0, 9) == "graphtime") {
             std::string category;

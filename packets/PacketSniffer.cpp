@@ -13,10 +13,19 @@ PacketSniffer::PacketSniffer(const std::string& fileName)
     }
 }
 
+/**
+ * @brief Checks whether an IPv4 address is valid and not special-use.
+ * @param address IPv4 address object.
+ * @return True if valid.
+ */
 bool isValidIPv4Address(const pcpp::IPv4Address address) {
     return address != pcpp::IPv4Address::Zero && pcpp::IPv4Address::isValidIPv4Address(address.toString());
 }
 
+/**
+ * @brief Prints detailed information about the selected capture device.
+ * @param dev Pointer to live device object.
+ */
 void printDevInfo(const pcpp::PcapLiveDevice* dev) {
     // before capturing packets let's print some info about this interface
     std::cout
@@ -48,7 +57,10 @@ bool PacketSniffer::setupLiveDevice() {
 }
 
 /**
- * A callback function for the async capture which is called each time a packet is captured
+ * @brief Callback invoked on every captured packet.
+ * @param packet Pointer to raw packet data.
+ * @param dev Live device that received the packet.
+ * @param cookie User-defined pointer (used for PacketStats).
  */
 void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {

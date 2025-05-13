@@ -5,7 +5,8 @@
 #include <unordered_map>
 
 /**
- * A struct for collecting packet statistics
+ * @struct PacketStats
+ * @brief Collects detailed statistics from captured packets, including protocol counts, total bytes, timing, and DNS/domain mappings.
  */
 struct PacketStats {
     // packet counts
@@ -33,17 +34,18 @@ struct PacketStats {
 
 
     /**
-     * Clear all stats
+     * @brief Resets all stored statistics.
      */
     void clear();
 
     /**
-     * Collect stats from a packet
+     * @brief Processes a packet and updates statistics.
+     * @param packet Parsed packet object.
      */
     void consumePacket(const pcpp::Packet& packet);
 
     /**
-     * Print stats to console
+     * @brief Outputs statistics to the console.
      */
     void printToConsole();
 };
