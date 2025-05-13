@@ -109,6 +109,11 @@ size_t countCSVRows(const std::string& fileName) {
     size_t count = 0;
     std::string line;
 
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << fileName << std::endl;
+        return 0;
+    }
+
     while (std::getline(file, line)) {
         if (!line.empty()) count++;
     }
@@ -121,11 +126,14 @@ void LogReader::parseData() {
 
     size_t dataSize = countCSVRows(fileName);
 
+    if (dataSize == 0) return;
+
     const auto start_time = std::chrono::high_resolution_clock::now();
 
     std::ifstream file(fileName);
     if (!file.is_open()) {
         std::cerr << "Error opening file: " << fileName << std::endl;
+        return;
     }
     std::string line;
     if (std::getline(file, line)) {
@@ -173,6 +181,7 @@ void LogReader::parseData() {
     std::ifstream file_b(fileName);
     if (!file_b.is_open()) {
         std::cerr << "Error opening file: " << fileName << std::endl;
+        return;
     }
     std::string line_b;
     if (std::getline(file_b, line_b)) {
