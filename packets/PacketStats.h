@@ -2,6 +2,7 @@
 #define PACKETSTATS_H
 #include <chrono>
 #include <Packet.h>
+#include <unordered_map>
 
 /**
  * A struct for collecting packet statistics
