@@ -6,7 +6,7 @@ Logger::Logger(const std::string& fileName) {
     logFile.open(fileName, std::ios::app);
 
     if (!fileExists) {
-        logFile << "packet_count,eth_packet_count,ipv4_packet_count,ipv6_packet_count,tcp_packet_count,udp_packet_count,dns_packet_count,http_request_packet_count,http_response_packet_count,ssl_packet_count,packets_per_second (throughput),latency_ns,timestamp_ns,top_domain_1,top_domain_2,top_domain_3,top_domain_4,top_domain_5\n";
+        logFile << "packet_count,total_bytes,eth_packet_count,ipv4_packet_count,ipv6_packet_count,tcp_packet_count,udp_packet_count,dns_packet_count,http_request_packet_count,http_response_packet_count,ssl_packet_count,packets_per_second (throughput),latency_ns,timestamp_ns,top_domain_1,top_domain_2,top_domain_3,top_domain_4,top_domain_5\n";
 ;
     }
 };
@@ -19,6 +19,7 @@ void Logger::flush() {
 void Logger::logToFile(const PacketStats& stats) {
 
     logFile << stats.packetCount << ","
+        << stats.totalBytes << ","
         << stats.ethPacketCount << ","
         << stats.ipv4PacketCount << ","
         << stats.ipv6PacketCount << ","
@@ -35,9 +36,12 @@ void Logger::logToFile(const PacketStats& stats) {
     std::vector<std::pair<std::string, int>> sorted(stats.domainCount.begin(), stats.domainCount.end());
     std::sort(sorted.begin(), sorted.end(),
               [](auto& a, auto& b) { return a.second > b.second; });
-    for (int i = 0; i < std::min(5, static_cast<int>(sorted.size())); ++i) {
+
+    // writing top 5 most highest traffic dns/ips to log file
+    for (int i = 0; i < std::min(5, static_cast<int>(sorted.size())); i++) {
         logFile << sorted[i].first << "-" << sorted[i].second << ",";
     }
+    // ending the row
     logFile << "\n";
 }
 

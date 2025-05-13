@@ -2,6 +2,7 @@
 #define PACKETSTATS_H
 #include <chrono>
 #include <Packet.h>
+#include <unordered_map>
 
 /**
  * A struct for collecting packet statistics
@@ -35,9 +36,6 @@ struct PacketStats {
      * Clear all stats
      */
     void clear();
-
-    // Constructor is optional here since the members are already initialized
-    PacketStats();
 
     /**
      * Collect stats from a packet

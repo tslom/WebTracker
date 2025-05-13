@@ -1,6 +1,6 @@
 #ifndef PACKETSNIFFER_H
 #define PACKETSNIFFER_H
-#include "Logger.h"
+#include "../logging/Logger.h"
 #include "PacketStats.h"
 #include "PcapLiveDeviceList.h"
 
