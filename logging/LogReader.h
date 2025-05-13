@@ -11,15 +11,16 @@ public:
     explicit LogReader(std::string  fileName);
     void parseData();
     void graphOverTime(const std::string& category);
+    void printIntCategories();
 private:
     bool dataParsed;
     std::string fileName;
     std::vector<std::string> colNames;
     std::unordered_set<std::string> categories;
-    std::unordered_set<std::string> numericalCategories;
+    std::unordered_set<std::string> intCategories;
     std::unordered_map<std::string, std::variant<std::vector<std::string>, std::vector<int>>> csvData;
     bool isCategory(const std::string& category) const;
-    bool isIntegerCategory(const std::string& category) const;
+    bool isIntCategory(const std::string& category) const;
     void convertStringsToInts(const std::string& category);
     void convertStringsToSeconds(const std::string& category);
 };

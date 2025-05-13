@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.30)
-project(WebBlocker)
+cmake_minimum_required(VERSION 3.15)
+project(WebTracker)
 
 set(CMAKE_CXX_STANDARD 20)
 

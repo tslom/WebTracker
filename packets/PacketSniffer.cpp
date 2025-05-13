@@ -3,7 +3,10 @@
 #include <iostream>
 #include "SystemUtils.h"
 
-PacketSniffer::PacketSniffer(const std::string& fileName): logger(fileName){
+PacketSniffer::PacketSniffer(const std::string& fileName)
+    : logger(fileName)
+    , isCapturing(false)
+    , stopCapturing(false) {
     if (!setupLiveDevice()) {
         liveDevice = nullptr;
         std::cerr << "Unable to locate device to sniff" << std::endl;
@@ -60,28 +63,73 @@ void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* c
 }
 
 void PacketSniffer::startSniffing() {
-    if (!liveDevice->open())
-    {
+    if (isCapturing) {
+        std::cerr << "Already capturing packets" << std::endl;
+        return;
+    }
+
+    if (!liveDevice->open()) {
         std::cerr << "Cannot open device" << std::endl;
         return;
     }
 
     std::cout << std::endl << "Starting packet capture..." << std::endl;
 
-    liveDevice->startCapture(onPacketArrives, &stats);
-
-    for (int i = 0; i < 3; i++) {
-
-        pcpp::multiPlatformSleep(10);
-
-        stats.printToConsole();
-
-        logger.logToFile(stats);
-        stats.clear();
-
-        logger.flush();
+    if (!liveDevice->startCapture(onPacketArrives, &stats)) {
+        std::cerr << "Cannot start capture" << std::endl;
+        liveDevice->close();
+        return;
     }
 
-    liveDevice->stopCapture();
+    stopCapturing = false;
+    isCapturing = true;
+
+    thread = std::thread(&PacketSniffer::whileInThread, this);
+    thread.detach();
 }
+
+void PacketSniffer::stopSniffing() {
+    if (!isCapturing) {
+        return;
+    }
+
+    stopCapturing = true;
+
+    if (thread.joinable()) {
+        thread.join();
+    }
+
+    // Stop the actual capture
+    liveDevice->stopCapture();
+    liveDevice->close();
+
+    isCapturing = false;
+
+    std::cout << "Packet capture stopped" << std::endl;
+}
+
+void PacketSniffer::whileInThread() {
+    while (!stopCapturing) {
+        // every 10 seconds, locks the thread, sends the data to logger
+        pcpp::multiPlatformSleep(10);
+
+        {
+            std::lock_guard<std::mutex> lock(std::mutex);
+            logger.logToFile(stats);
+            stats.clear();
+            logger.flush();
+        }
+    }
+}
+
+PacketSniffer::~PacketSniffer() {
+    if (isCapturing) {
+        stopSniffing();
+    }
+}
+
+bool PacketSniffer::getIsCapturing() {
+    return isCapturing;
+}
+
 

@@ -5,29 +5,35 @@
 #include <sstream>
 #include <matplot/matplot.h>
 
+constexpr long long NANO_PER_SECOND = 1e9;
+
 LogReader::LogReader(std::string fileName)
     : dataParsed(false)
     , fileName(std::move(fileName))
-    , numericalCategories(std::unordered_set<std::string>{"packet_count","total_bytes","eth_packet_count","ipv4_packet_count","ipv6_packet_count","tcp_packet_count","udp_packet_count","dns_packet_count","http_request_packet_count","http_response_packet_count","ssl_packet_count","packets_per_second (throughput)","latency_ns"})
+    , intCategories(std::unordered_set<std::string>{"packet_count","total_bytes","eth_packet_count","ipv4_packet_count","ipv6_packet_count","tcp_packet_count","udp_packet_count","dns_packet_count","http_request_packet_count","http_response_packet_count","ssl_packet_count","packets_per_second (throughput)","latency_ns"})
 {}
 
 bool LogReader::isCategory(const std::string& category) const {
     return categories.contains(category);
 }
 
-bool LogReader::isIntegerCategory(const std::string& category) const {
-    return numericalCategories.contains(category);
+bool LogReader::isIntCategory(const std::string& category) const {
+    return intCategories.contains(category);
 }
 
 void LogReader::graphOverTime(const std::string& category) {
-    if (dataParsed && isIntegerCategory(category)) {
+    if (dataParsed && isIntCategory(category)) {
         matplot::plot(std::get<std::vector<int>>(csvData["timestamp_ns"]), std::get<std::vector<int>>(csvData[category]));
         matplot::xlabel("Time (s)");
         matplot::ylabel(category);
         matplot::title(category + " over time");
-        matplot::grid(matplot::on);
 
-        matplot::show();
+        matplot::save("plot.png");
+        std::system("open plot.png");
+    } else if (dataParsed) {
+        std::cerr << "Invalid category" << std::endl;
+    } else {
+        std::cerr << "Data not parsed yet! Please run 'updatedata'" << std::endl;
     }
 }
 
@@ -37,7 +43,6 @@ void LogReader::convertStringsToInts(const std::string& category) {
     intData.reserve(stringData.size());
 
     for (const auto& value : stringData) {
-        std::cout << category << ":" << value << std::endl;
         try {
             intData.push_back(std::stoi(value));  // convert to integer
         }
@@ -53,9 +58,10 @@ void LogReader::convertStringsToSeconds(const std::string& category) {
     const auto& stringData = std::get<std::vector<std::string>>(csvData[category]);
     std::vector<int> secondData;
     secondData.reserve(stringData.size());
+    int firstTime = std::stoll(stringData[0]) / NANO_PER_SECOND;
 
     for (const auto& value : stringData) {
-        secondData.push_back(std::stoll(value) / 1e9);  // convert to seconds
+        secondData.push_back((std::stoll(value) / NANO_PER_SECOND) - firstTime);  // convert to seconds
     }
 
     csvData[category] = std::move(secondData);
@@ -107,11 +113,18 @@ void LogReader::parseData() {
 
     // printing the data out temporarily for testing purposes
     for (const auto& [category, data]: csvData) {
-        if (isIntegerCategory(category)) {
+        if (isIntCategory(category)) {
             convertStringsToInts(category);
         }
     }
     convertStringsToSeconds("timestamp_ns");
     dataParsed = true;
+
+    std::cout << "Data successfully parsed!" << std::endl;
 }
 
+void LogReader::printIntCategories() {
+    for (auto& category : intCategories) {
+        std::cout << category << std::endl;
+    }
+}
