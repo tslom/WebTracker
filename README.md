@@ -25,14 +25,18 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `project_license`
+WebTracker is a lightweight, terminal-based network monitoring tool built in C++. It captures and analyzes live network packets, logs real-time statistics, and provides options to visualize tracked data over time.
 
+This project is ideal for:
+- Students learning about packet capture
+- Developers interested in traffic profiling
+- Lightweight diagnostics for network behavior
 
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy of the code up and running follow these simple steps.
+To get a local copy of the code up and running, follow these steps.
 
 ### Prerequisites
 
@@ -46,7 +50,7 @@ First, you need to install Gnuplot and Boost which are prerequisites for other p
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/tslom/WebTracker.git
    ```
 2. Run Cmake to install other packages (matplot and pcapplusplus) and build the code
    ```sh
@@ -54,43 +58,52 @@ First, you need to install Gnuplot and Boost which are prerequisites for other p
     cd build
     cmake ..
     make
+    cd ..
    ```
 
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-1. First, start collecting the packet data
+1. Start the program
    ```sh
-    ./WebTracker start
+    sudo ./WebTracker
    ```
    
-2. Parse the packet data
+2. Start collecting the packet data
    ```sh
-    ./WebTracker start
+    start
    ```
 
-3. If you want to stop collecting data
+3. Parse the packet data
    ```sh
-    ./WebTracker stop
+    updatedata
    ```
 
-3. Graph data with respect to time
+4. If you want to stop collecting data
+   ```sh
+    stop
+   ```
+
+5. Graph data with respect to time
    ```sh
    # to check what categories can be checked
-   ./WebTracker graphtime
+   graphtime
    
    # generate a graph
-   ./WebTracker graphtime [category]
+   graphtime [category]
+   ```
+
+6. Exit the project
+   ```sh
+   exit
    ```
 
 
 <!-- LICENSE -->
 ## License
 
-Distributed under the project_license. See `LICENSE.txt` for more information.
-
-
+Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <!-- RESOURCES -->
 ## Resources
