@@ -3,17 +3,29 @@
 #include <iostream>
 #include "SystemUtils.h"
 
-PacketSniffer::PacketSniffer(const std::string& fileName): logger(fileName){
+PacketSniffer::PacketSniffer(const std::string& fileName)
+    : logger(fileName)
+    , isCapturing(false)
+    , stopCapturing(false) {
     if (!setupLiveDevice()) {
         liveDevice = nullptr;
         std::cerr << "Unable to locate device to sniff" << std::endl;
     }
 }
 
+/**
+ * @brief Checks whether an IPv4 address is valid and not special-use.
+ * @param address IPv4 address object.
+ * @return True if valid.
+ */
 bool isValidIPv4Address(const pcpp::IPv4Address address) {
     return address != pcpp::IPv4Address::Zero && pcpp::IPv4Address::isValidIPv4Address(address.toString());
 }
 
+/**
+ * @brief Prints detailed information about the selected capture device.
+ * @param dev Pointer to live device object.
+ */
 void printDevInfo(const pcpp::PcapLiveDevice* dev) {
     // before capturing packets let's print some info about this interface
     std::cout
@@ -45,7 +57,10 @@ bool PacketSniffer::setupLiveDevice() {
 }
 
 /**
- * A callback function for the async capture which is called each time a packet is captured
+ * @brief Callback invoked on every captured packet.
+ * @param packet Pointer to raw packet data.
+ * @param dev Live device that received the packet.
+ * @param cookie User-defined pointer (used for PacketStats).
  */
 void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {
@@ -60,28 +75,73 @@ void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* c
 }
 
 void PacketSniffer::startSniffing() {
-    if (!liveDevice->open())
-    {
+    if (isCapturing) {
+        std::cerr << "Already capturing packets" << std::endl;
+        return;
+    }
+
+    if (!liveDevice->open()) {
         std::cerr << "Cannot open device" << std::endl;
         return;
     }
 
     std::cout << std::endl << "Starting packet capture..." << std::endl;
 
-    liveDevice->startCapture(onPacketArrives, &stats);
-
-    for (int i = 0; i < 3; i++) {
-
-        pcpp::multiPlatformSleep(10);
-
-        stats.printToConsole();
-
-        logger.logToFile(stats);
-        stats.clear();
-
-        logger.flush();
+    if (!liveDevice->startCapture(onPacketArrives, &stats)) {
+        std::cerr << "Cannot start capture" << std::endl;
+        liveDevice->close();
+        return;
     }
 
-    liveDevice->stopCapture();
+    stopCapturing = false;
+    isCapturing = true;
+
+    thread = std::thread(&PacketSniffer::whileInThread, this);
+    thread.detach();
 }
+
+void PacketSniffer::stopSniffing() {
+    if (!isCapturing) {
+        return;
+    }
+
+    stopCapturing = true;
+
+    if (thread.joinable()) {
+        thread.join();
+    }
+
+    // Stop the actual capture
+    liveDevice->stopCapture();
+    liveDevice->close();
+
+    isCapturing = false;
+
+    std::cout << "Packet capture stopped" << std::endl;
+}
+
+void PacketSniffer::whileInThread() {
+    while (!stopCapturing) {
+        // every 10 seconds, locks the thread, sends the data to logger
+        pcpp::multiPlatformSleep(10);
+
+        {
+            std::lock_guard<std::mutex> lock(std::mutex);
+            logger.logToFile(stats);
+            stats.clear();
+            logger.flush();
+        }
+    }
+}
+
+PacketSniffer::~PacketSniffer() {
+    if (isCapturing) {
+        stopSniffing();
+    }
+}
+
+bool PacketSniffer::getIsCapturing() {
+    return isCapturing;
+}
+
 

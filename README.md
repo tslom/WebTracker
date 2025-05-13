@@ -1,3 +1,1 @@
-install
-gnuplot
-boost
+sudo ./WebTracker start
