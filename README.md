@@ -56,7 +56,7 @@ First, you need to install Gnuplot and Boost which are prerequisites for other p
    ```sh
     mkdir -p build
     cd build
-    cmake ..
+    cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     make
     cd ..
    ```
